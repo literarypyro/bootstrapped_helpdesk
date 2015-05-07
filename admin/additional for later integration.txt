@@ -1,0 +1,165 @@
+						$routing_Option="<select name='reassign_task'>";
+						$delete_option="<select name='delete_task'>";
+
+
+						<?php
+
+
+						}
+
+						
+						<?php
+							$routing_Option.="<option value='".$row['id']."'>".$row['reference_number']."</option>";
+							$delete_option.="<option value='".$row['id']."'>".$row['reference_number']."</option>";						
+						}
+						?>
+						<?php
+						$delete_option.="</select>";
+						$routing_Option.="</select>";
+						?>
+
+						</table>
+
+							<td ><font color=""><b><?php echo $row['reference_number']; ?></b></font></td>
+							<td ><font color=""><?php echo $row['client_name']; ?></font></td>
+							<td ><font color=""><?php echo $row['division_id']; ?></font></td>
+							<td ><font color=""><?php echo $row2['unit']; ?></font></td>
+							<td ><font color=""><?php echo $row3['type'].", ".$row['problem_details']; ?></font></td>
+							<td ><font color=""><?php echo date("F d, Y h:ia",strtotime($row['admin_time'])); ?></font></td>
+							<td ><font color=""><?php echo $row['staffer']; ?></font></td>
+						<?php 
+						if($count>0){
+						?>
+						<table align=center>
+						<tr>
+						<td>
+						<input type=button value='Generate Printout of Report' onclick='window.open("report generation.php")' />
+						</td>
+						</tr>
+						</table>
+						<form action='taskmonitor.php' method='post'>
+						<table>
+						<tr>
+						<td>Re-Assign Task: <?php echo $routing_Option; ?>
+						<select name='reassign_staffer'>
+						<?php
+						//$db=new mysqli('localhost','root','','helpdesk_backup');
+						$db=retrieveHelpdeskDb();
+						$sql="select * from dispatch_staff inner join login on dispatch_staff.id=login.username";
+
+						$rs=$db->query($sql);
+						$nm=$rs->num_rows;
+						for($i=0;$i<$nm;$i++){
+
+						$row=$rs->fetch_assoc();
+						?>
+							<option value='<?php echo $row['id']; ?>'><?php echo $row['staffer']; ?></option>
+						<?php
+
+						}
+
+						?>
+						</select>
+						<input type=submit value='Assign' />
+						</td>
+						</tr>
+						</table>
+						</form>
+						<form action='taskmonitor.php' method='post'>
+						<table>
+						<tr>
+						<td>Delete (Redundant) Tasks:<?php echo $delete_option; ?>
+						<input type=submit value='Delete' />
+
+						</td>
+						</tr>
+
+						</table>
+						</form>
+						<br>
+						<i class='fa fa-eye'></i>
+						<i class='fa fa-heart'></i>
+						<i class='fa fa-rss fa-rotate-45'></i>
+
+
+						<?php
+						}
+						?>
+						
+						
+						
+									<div class="row-fluid">		
+				<div class="box span12">
+					<div class="box-header" data-original-title="">
+						<h2><i class="icon-tasks"></i><span class="break"></span>Re-Assign Client Requests</h2>
+					</div>				
+					<div class="box-content">
+						<table class="table table-striped table-bordered bootstrap-datatable datatable">
+						<thead>
+						<tr>
+						<th>Reference Number</th>
+						<th>Client Name</th>
+						<th>Office</th>
+						<th>Unit Type</th>
+						<th>Problem Concern</th>
+						<th>Dispatch Time</th>
+						<th>Dispatch Staff</th>
+
+						</tr>
+						</thead>
+						
+						<tbody>
+						<?php
+						$yearDate=date("Y-m-d",strtotime(date("Y-m-d")."-1 year"));
+
+
+						$db=retrieveHelpdeskDb();
+						$sql="select (select staffer from dispatch_staff where id=task.dispatch_staff) as staffer,(select count(*) from forward_admin where id=task.id) as forward_count,task.* from task inner join dispatch_staff on task.dispatch_staff=dispatch_staff.id where (select count(*) from accomplishment where task_id=task.id)=0 and (dispatch_staff is not null) and (dispatch_staff not in ('')) and dispatch_time>'".$yearDate."' order by dispatch_time desc";
+
+						$rs=$db->query($sql);
+						$nm=$rs->num_rows;
+						$count=$nm;
+
+
+						for($i=0;$i<$nm;$i++){
+							$row=$rs->fetch_assoc();
+							
+							$sql2="select * from computer where id='".$row['unit_id']."'";
+							$rs2=$db->query($sql2);
+							$row2=$rs2->fetch_assoc();
+							
+							$sql3="select * from classification where id='".$row['classification_id']."'";
+							$rs3=$db->query($sql3);
+							$row3=$rs3->fetch_assoc();
+							
+							
+						?>
+
+						<tr>
+							
+							<?php
+							if($row['forward_count']>0){
+								$tableStyle=" style='background-color:red;' ";
+							}
+							else {
+								$tableStyle="";
+							}
+							?>
+							<td>asdadasdas</td>
+
+						</tr>
+						<?php
+						}
+						?>
+
+						</tbody>						
+						
+						</table>
+					<br>
+
+					</div>
+
+				</div>	
+			<div class="clearfix"></div>
+			
+			</div>
